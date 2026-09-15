@@ -181,26 +181,36 @@ ul { padding: 0; list-style: none; }
   padding: 56px 24px 48px; text-align: center;
   background: radial-gradient(ellipse 58% 52% at 50% 46%, var(--bg-light) 0%, rgba(248, 241, 232, 0) 72%), var(--bg);
 }
-/* phones: no poles to frame, so the hero just wraps its content */
-@media (max-width: 640px) { .hero { min-height: 0; padding: 72px 20px 56px; } }
-
-/* diagonal barber-pole lines, strongest at the edges, gone behind the headline and before the hero ends */
-.hero__stripes {
-  position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: repeating-linear-gradient(-45deg, rgba(122, 79, 44, .15) 0 2px, transparent 2px 28px);
-  -webkit-mask-image:
-    radial-gradient(ellipse 60% 55% at 50% 48%, transparent 45%, #000 100%),
-    linear-gradient(to bottom, #000 55%, transparent 96%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    radial-gradient(ellipse 60% 55% at 50% 48%, transparent 45%, #000 100%),
-    linear-gradient(to bottom, #000 55%, transparent 96%);
-  mask-composite: intersect;
+/* phones: no poles to frame, so the hero just wraps its content; the glow is kept small
+   enough to fade out before the hero's bottom edge, so no line shows where the next section starts */
+@media (max-width: 640px) {
+  .hero {
+    min-height: 0; padding: 72px 20px 56px;
+    background: radial-gradient(ellipse 85% 42% at 50% 40%, var(--bg-light) 0%, rgba(248, 241, 232, 0) 70%), var(--bg);
+  }
+  /* .hero > raises specificity over the base .hero__blob rule further down the file */
+  .hero > .hero__blob { top: 2%; width: 440px; height: 440px; margin-left: -220px; }
 }
 
+/* diagonal barber-pole lines, strongest at the edges, gone behind the headline and before the hero ends.
+   Two nested masks (outer: fade toward the bottom, inner: clear centre) multiply on their own,
+   so this doesn't depend on mask-composite support. */
+.hero__stripes {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 96%);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 96%);
+}
+.hero__stripes::before {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(-45deg, rgba(122, 79, 44, .15) 0 2px, transparent 2px 28px);
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 48%, transparent 45%, #000 100%);
+  mask-image: radial-gradient(ellipse 60% 55% at 50% 48%, transparent 45%, #000 100%);
+}
+
+/* sized and placed so the blurred glow fades out above the hero's bottom edge (overflow would cut it) */
 .hero__blob {
-  position: absolute; left: 50%; top: 14%; z-index: -1;
-  width: 720px; height: 720px; margin-left: -360px;
+  position: absolute; left: 50%; top: 8%; z-index: -1;
+  width: 660px; height: 660px; margin-left: -330px;
   background: radial-gradient(circle, rgba(210, 165, 122, .26), rgba(210, 165, 122, 0) 68%);
   filter: blur(40px); pointer-events: none;
 }
