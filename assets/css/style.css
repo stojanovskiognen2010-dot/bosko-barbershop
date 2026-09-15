@@ -137,6 +137,9 @@ ul { padding: 0; list-style: none; }
 }
 .nav__links a:hover { color: var(--accent-text); }
 .nav__links a:hover::after { transform: scaleX(1); }
+/* the section on screen stays marked */
+.nav__links a.is-active { color: var(--accent-text); }
+.nav__links a.is-active::after { transform: scaleX(1); }
 
 .nav__actions { display: flex; align-items: center; gap: 10px; }
 @media (max-width: 359px) { .nav__actions .btn--sm { display: none; } }
@@ -150,25 +153,60 @@ ul { padding: 0; list-style: none; }
 .nav__toggle[aria-expanded="true"] span:first-child { transform: translateY(3.5px) rotate(45deg); }
 .nav__toggle[aria-expanded="true"] span:last-child { transform: translateY(-3.5px) rotate(-45deg); }
 
+/* phone menu: floats over the page (so opening and closing never shifts the layout), page dimmed behind */
+/* a sibling of the header (z 50), so it sits over the page but under the bar and its menu */
+.nav__scrim {
+  position: fixed; inset: 0; z-index: 49;
+  background: rgba(22, 18, 16, .4);
+  opacity: 0; transition: opacity .28s var(--ease);
+}
+.nav__scrim[hidden] { display: none; }
+.nav__scrim.is-on { opacity: 1; }
+
 .nav__menu {
-  display: grid; padding: 4px 20px 22px;
-  border-top: 1px solid rgba(122, 79, 44, .14);
-  animation: menu-in .3s var(--ease);
+  position: absolute; left: 0; right: 0; top: 100%; z-index: 2;
+  display: grid; padding: 8px 20px 22px;
+  max-height: calc(100dvh - 72px); overflow-y: auto;
+  background: var(--bg); border-top: 1px solid rgba(122, 79, 44, .14); border-radius: 0 0 22px 22px;
+  box-shadow: 0 30px 50px -30px rgba(22, 18, 16, .55);
+  opacity: 0; transform: translateY(-12px);
+  transition: opacity .28s var(--ease), transform .28s var(--ease);
 }
 .nav__menu[hidden] { display: none; }
+.nav.is-open .nav__menu { opacity: 1; transform: none; }
+.nav.is-open .nav__menu > a { animation: menu-item-in .4s var(--ease) both; animation-delay: calc(var(--i, 0) * 45ms + 40ms); }
+@keyframes menu-item-in { from { opacity: 0; transform: translateY(-8px); } }
+
 .nav__menu a:not(.btn) {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 2px; border-bottom: 1px dashed var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 0 -12px; padding: 16px 14px; border-radius: 14px; border-bottom: 1px dashed var(--border);
   font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase;
+  transition: background-color .2s, color .2s, border-color .2s;
 }
-.nav__menu a:not(.btn) .i { font-size: 20px; color: var(--accent); }
+.nav__menu a:not(.btn) span { display: flex; align-items: baseline; gap: 14px; }
+.nav__menu a:not(.btn) small {
+  font-family: var(--font-body); font-size: 12px; font-weight: 600; letter-spacing: .1em; color: var(--accent);
+  transition: color .2s;
+}
+.nav__menu a:not(.btn) .i { font-size: 20px; color: var(--accent); transition: transform .25s var(--ease), color .2s; }
+.nav__menu a:not(.btn):hover { background: var(--secondary); }
+.nav__menu a:not(.btn):hover .i { transform: translate(3px, -3px); }
+/* the section on screen is marked in brown... */
+.nav__menu a:not(.btn).is-active { color: var(--accent-text); }
+.nav__menu a:not(.btn).is-active small { color: var(--accent-text); }
+/* ...and the item being tapped lights up fully */
+.nav__menu a:not(.btn):active,
+.nav__menu a:not(.btn).is-pressed { background: var(--accent-text); border-bottom-color: transparent; color: #fff; }
+.nav__menu a:not(.btn):active small, .nav__menu a:not(.btn).is-pressed small,
+.nav__menu a:not(.btn):active .i, .nav__menu a:not(.btn).is-pressed .i { color: #fff; }
+.nav__menu a:not(.btn).is-pressed .i { transform: translate(3px, -3px); }
 .nav__menu .btn { margin-top: 18px; }
-@keyframes menu-in { from { opacity: 0; transform: translateY(-6px); } }
+.nav__menu .btn.is-pressed { background: var(--accent-dark); border-color: var(--accent-dark); }
 
 @media (min-width: 768px) {
   .nav__bar { padding: 0 32px; }
   .nav__links { display: flex; }
-  .nav__toggle, .nav__menu { display: none !important; }
+  .nav__toggle, .nav__menu, .nav__scrim { display: none !important; }
 }
 
 /* ---------- hero ---------- */
@@ -588,21 +626,6 @@ html.viewer-open { overflow: hidden; }
 }
 .hours__list .is-today dd { color: var(--fg); font-weight: 500; }
 
-/* ---------- footer ---------- */
-
-.footer { padding: 30px 20px 34px; border-top: 1px solid rgba(122, 79, 44, .18); }
-@media (min-width: 768px) { .footer { padding: 30px 32px 34px; } }
-.footer__inner { max-width: 70rem; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; }
-.footer__copy { font-size: 13px; color: var(--muted); }
-.footer__icons { display: flex; gap: 6px; }
-.footer__icons a {
-  width: 44px; height: 44px; border-radius: 10px;
-  display: grid; place-items: center; font-size: 18px; color: var(--fg);
-  transition: background-color .2s, color .2s;
-}
-.footer__icons a:hover { background: var(--secondary); color: var(--accent-text); }
-@media (max-width: 640px) { .footer__inner { flex-direction: column; text-align: center; } }
-
 /* ---------- reveal on scroll ---------- */
 /* hidden only while JS runs; the head script drops .js again if main.js never arrives */
 
@@ -615,7 +638,8 @@ html.viewer-open { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .pole__stripes, .nav__menu, .viewer__figure { animation: none; }
+  .pole__stripes, .viewer__figure, .nav.is-open .nav__menu > a { animation: none; }
+  .nav__menu, .nav__scrim { transition: none; }
   .js [data-reveal] { opacity: 1; transform: none; transition: none; }
   .shot, .shot__img img, .btn, .row > .i { transition: none; }
   .shot:hover, .shot:hover .shot__img img, .row:hover > .i { transform: none; }

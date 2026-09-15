@@ -10,22 +10,66 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  /* ---------- mobile menu ---------- */
+  /* ---------- mobile menu: slides over the page; a tapped item lights up, then the menu closes ---------- */
   const toggle = nav.querySelector('.nav__toggle');
   const menu = document.getElementById('menu');
+  const scrim = document.querySelector('.nav__scrim');
+  const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
+  let closeTimer = null;
   const setMenu = (open) => {
-    menu.hidden = !open;
-    nav.classList.toggle('is-open', open);
+    clearTimeout(closeTimer);
     toggle.setAttribute('aria-expanded', String(open));
     toggle.setAttribute('aria-label', open ? 'Затвори мени' : 'Отвори мени');
+    if (open) {
+      menu.hidden = false;
+      scrim.hidden = false;
+      void menu.offsetHeight; // start from the closed style so the slide-in transition runs
+      nav.classList.add('is-open');
+      scrim.classList.add('is-on');
+    } else {
+      nav.classList.remove('is-open');
+      scrim.classList.remove('is-on');
+      // hide once the slide-out is done, and clear the tapped highlight for next time
+      closeTimer = setTimeout(() => {
+        menu.hidden = true;
+        scrim.hidden = true;
+        menu.querySelectorAll('.is-pressed').forEach((a) => a.classList.remove('is-pressed'));
+      }, reduceMotion ? 0 : 300);
+    }
   };
-  toggle.addEventListener('click', () => setMenu(menu.hidden));
-  menu.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
-  document.addEventListener('click', (e) => { if (!menu.hidden && !nav.contains(e.target)) setMenu(false); });
+  toggle.addEventListener('click', () => setMenu(!isOpen()));
+  scrim.addEventListener('click', () => setMenu(false));
+  // the menu floats over the page, so the jump to the section happens right away underneath it;
+  // the tapped item stays lit for a moment before the menu slides away
+  menu.addEventListener('click', (e) => {
+    const a = e.target.closest('a');
+    if (!a) return;
+    a.classList.add('is-pressed');
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => setMenu(false), reduceMotion ? 0 : 180);
+  });
+  document.addEventListener('click', (e) => { if (isOpen() && !nav.contains(e.target)) setMenu(false); });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !menu.hidden) { setMenu(false); toggle.focus(); }
+    if (e.key === 'Escape' && isOpen()) { setMenu(false); toggle.focus(); }
   });
   matchMedia('(min-width: 768px)').addEventListener('change', (e) => { if (e.matches) setMenu(false); });
+
+  /* ---------- the nav marks the section on screen ---------- */
+  const spyLinks = [...document.querySelectorAll('.nav__links a, .nav__menu a:not(.btn)')];
+  const sections = [...document.querySelectorAll('main > section[id]')];
+  if ('IntersectionObserver' in window && spyLinks.length) {
+    const mark = (id) => spyLinks.forEach((a) => {
+      const on = a.getAttribute('href') === `#${id}`;
+      a.classList.toggle('is-active', on);
+      if (on) a.setAttribute('aria-current', 'location');
+      else a.removeAttribute('aria-current');
+    });
+    // a section counts as "on screen" while it crosses a thin band just above the middle
+    const spy = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => { if (entry.isIntersecting) mark(entry.target.id); });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    sections.forEach((s) => spy.observe(s));
+  }
 
   /* ---------- reveal on scroll ---------- */
   // The hero is above the fold by definition: play its entrance straight away (after the first
@@ -329,7 +373,4 @@
     });
   }
 
-  /* ---------- footer year ---------- */
-  const year = document.querySelector('[data-year]');
-  if (year) year.textContent = String(new Date().getFullYear());
 })();

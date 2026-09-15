@@ -120,12 +120,14 @@
       </div>
     </div>
     <nav class="nav__menu" id="menu" aria-label="Мени" hidden>
-      <a href="#gallery">Галерија <svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-      <a href="#prices">Цени <svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-      <a href="#contact">Контакт <svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-      <a class="btn" href="#booking">Закажи термин</a>
+      <a href="#gallery" style="--i:0"><span><small>01</small>Галерија</span><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <a href="#prices" style="--i:1"><span><small>02</small>Цени</span><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <a href="#contact" style="--i:2"><span><small>03</small>Контакт</span><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <a class="btn" href="#booking" style="--i:3">Закажи термин</a>
     </nav>
   </header>
+  <!-- dims the page behind the phone menu; outside the header, whose backdrop blur would trap a fixed child -->
+  <div class="nav__scrim" hidden></div>
 
   <main id="main">
     <!-- ================= hero ================= -->
@@ -370,20 +372,5 @@
     <button class="viewer__btn viewer__nav viewer__nav--prev" type="button" aria-label="Претходна фризура"><svg class="i" aria-hidden="true"><use href="#i-prev"/></svg></button>
     <button class="viewer__btn viewer__nav viewer__nav--next" type="button" aria-label="Следна фризура"><svg class="i" aria-hidden="true"><use href="#i-next"/></svg></button>
   </dialog>
-
-  <footer class="footer">
-    <div class="footer__inner">
-      <a class="brand" href="#top" aria-label="Bosko Barbershop — на почеток">
-        <svg class="brand__mark" aria-hidden="true"><use href="#logo"/></svg>
-        <span class="brand__name">Bosko<small>Barbershop</small></span>
-      </a>
-      <p class="footer__copy">© <span data-year>2026</span> Bosko Barbershop · ул. 4-ти Ноември 64, Битола</p>
-      <div class="footer__icons">
-        <a href="https://www.instagram.com/boskobarbershop/" target="_blank" rel="noopener" aria-label="Instagram"><svg class="i" aria-hidden="true"><use href="#i-instagram"/></svg></a>
-        <a href="https://maps.app.goo.gl/8Y6pogGTn4uf4MAV9" target="_blank" rel="noopener" aria-label="Google Maps"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg></a>
-        <a href="tel:+38978590978" aria-label="Телефон 078 590 978"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg></a>
-      </div>
-    </div>
-  </footer>
 </body>
 </html>
